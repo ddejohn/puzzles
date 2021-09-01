@@ -8,41 +8,26 @@ def array(n, m=None):
     return [[random.randint(0, 9) for _ in range(n)] for _ in range(m)]
 
 
-def rot90(arr):
-    return [[*t] for t in zip(*arr)][::-1]
+def rot90(arr, k=1):
+    x = copy.deepcopy(arr)
+    for _ in range(k):
+        x = [[*t] for t in zip(*x)][::-1]
+    return x
 
 
-def shrink(arr):
-    return [row[1:-1] for row in arr[1:-1]]
+def snail_path(arr, items=()):
+    if not arr:
+        return items
+    if len(arr) < 1:
+        return items + (*arr[0],)
+
+    for i in range(4):
+        items += (*rot90(arr, i)[0][:-1],)
+    return snail_path([row[1:-1] for row in arr[1:-1]], items)
 
 
-def tiles(arr):
-    r0 = copy.deepcopy(arr)
-    r1 = rot90(r0)
-    r2 = rot90(r1)
-    r3 = rot90(r2)
-    return r0, r1, r2, r3
-
-
-def slice_snail(arr):
-    if len(arr) == 2:
-        return arr[0] + arr[1][::-1]
-    elif len(arr) == 1:
-        return arr[0]
-    result = []
-    r0, r1, r2, r3 = tiles(arr)
-    while True:
-        result.extend(r0[0][:-1] + r1[0][:-1] + r2[0][:-1] + r3[0][:-1])
-        r0, r1, r2, r3 = tiles(shrink(r0))
-        if (sq := len(r0) == 1) or (len(r1) == 1):
-            if sq:
-                result.extend(r0[0])
-            else:
-                result.extend(r1[0])
-            break
-        elif not r0:
-            break
-    return result
+def recursive_snail(array):
+    return list(snail_path(array))
 
 
 class Snail:
